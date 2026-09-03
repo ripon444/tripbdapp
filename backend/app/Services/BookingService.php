@@ -231,6 +231,14 @@ class BookingService
                 'notes' => "Trip completed successfully. Final Fare: BDT {$booking->final_fare}"
             ]);
 
+            // Automatic financial settlement & driver wallet credit
+            try {
+                $settlementService = app(FinancialSettlementService::class);
+                $settlementService->settleBooking($booking, $booking->payment_method ?? 'cash');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Financial settlement notice on trip completion #{$booking->id}: " . $e->getMessage());
+            }
+
             return $booking;
         });
     }

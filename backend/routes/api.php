@@ -115,10 +115,30 @@ Route::prefix('v1')->group(function () {
 
         // Admin Management Desk & Financial Hub
         Route::middleware('role:admin')->prefix('admin')->group(function () {
+            // Dashboard Overview
+            Route::get('/overview', [AdminAuthController::class, 'dashboardOverview']);
+
+            // Driver & KYC Management
             Route::get('/drivers', [AdminAuthController::class, 'listDrivers']);
             Route::post('/drivers/{id}/verify', [AdminAuthController::class, 'verifyDriver']);
 
-            // Phase 5: Financial Hub
+            // Vehicle Management
+            Route::get('/vehicles', [AdminAuthController::class, 'listVehicles']);
+            Route::post('/vehicles/{id}/verify', [AdminAuthController::class, 'verifyVehicle']);
+
+            // Booking Management
+            Route::get('/bookings', [AdminAuthController::class, 'listBookings']);
+            Route::get('/bookings/{id}', [AdminAuthController::class, 'showBooking']);
+            Route::post('/bookings/{id}/status', [AdminAuthController::class, 'updateBookingStatus']);
+
+            // Service Catalog Management
+            Route::get('/services', [ServiceCategoryController::class, 'adminIndex']);
+            Route::post('/services', [ServiceCategoryController::class, 'store']);
+            Route::put('/services/{id}', [ServiceCategoryController::class, 'update']);
+            Route::post('/vehicle-types', [ServiceCategoryController::class, 'storeVehicleType']);
+            Route::put('/vehicle-types/{id}', [ServiceCategoryController::class, 'updateVehicleType']);
+
+            // Phase 5: Financial Hub & Payments
             Route::get('/payments', [PaymentController::class, 'adminPayments']);
             Route::post('/payments/{id}/refund', [PaymentController::class, 'refund']);
 
@@ -128,6 +148,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/withdrawals/{id}/process', [DriverWithdrawalController::class, 'process']);
             Route::post('/withdrawals/{id}/complete', [DriverWithdrawalController::class, 'complete']);
 
+            Route::get('/transactions', [AdminFinanceController::class, 'listTransactions']);
             Route::post('/drivers/{id}/wallet-adjustment', [AdminFinanceController::class, 'walletAdjustment']);
             Route::get('/reports/financial', [AdminFinanceController::class, 'financialReport']);
             Route::get('/settings/financial', [AdminFinanceController::class, 'getSettings']);

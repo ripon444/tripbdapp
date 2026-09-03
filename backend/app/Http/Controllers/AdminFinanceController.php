@@ -214,4 +214,29 @@ class AdminFinanceController extends Controller
             'message' => 'Financial system settings updated successfully.'
         ]);
     }
+
+    /**
+     * List all financial settlements and wallet transactions.
+     * GET /api/v1/admin/transactions
+     */
+    public function listTransactions(Request $request): JsonResponse
+    {
+        $type = $request->input('type', 'settlements');
+
+        if ($type === 'wallet') {
+            $query = \App\Models\WalletTransaction::with('wallet.driver');
+            if ($request->filled('tx_type')) {
+                $query->where('type', $request->tx_type);
+            }
+            $transactions = $query->latest()->paginate(20);
+            return response()->json(['success' => true, 'data' => $transactions]);
+        }
+
+        $query = FinancialSettlement::with(['booking', 'driver']);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        $settlements = $query->latest()->paginate(20);
+        return response()->json(['success' => true, 'data' => $settlements]);
+    }
 }

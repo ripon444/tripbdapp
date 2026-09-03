@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Block access to hidden or sensitive files
+    RewriteRule ^(\.env|artisan|composer\.(json|lock)) - [F,L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

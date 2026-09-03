@@ -1,0 +1,6 @@
+{
+  "name": "TripBD",
+  "description": "cPanel-ready Bangladesh transport and trip booking platform for Truck, Ambulance, Private Car, Taxi, and Return Trips.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

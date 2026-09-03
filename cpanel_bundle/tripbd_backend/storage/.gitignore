@@ -1,0 +1,4 @@
+# Storage .gitignore
+*
+!.gitignore
+!.gitkeep

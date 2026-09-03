@@ -204,7 +204,27 @@ class AuthController extends Controller
             ->orWhere('email', $login)
             ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid mobile number/email or password.'
+            ], 401);
+        }
+
+        $passwordValid = false;
+        try {
+            $passwordValid = Hash::check($request->password, $user->password);
+        } catch (\Throwable $e) {
+            if (hash_equals((string)$user->password, (string)$request->password)) {
+                $user->password = Hash::make($request->password);
+                $user->save();
+                $passwordValid = true;
+            } else {
+                $passwordValid = false;
+            }
+        }
+
+        if (!$passwordValid) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid mobile number/email or password.'

@@ -81,6 +81,11 @@ export const DeploymentGuideViewer: React.FC = () => {
                 step: '6',
                 title: 'Setup cPanel 1-Minute Cron Job',
                 desc: 'Add Cron Job in cPanel: `* * * * * /usr/local/bin/php /home/USERNAME/tripbd_backend/artisan schedule:run >> /dev/null 2>&1`.'
+              },
+              {
+                step: '7',
+                title: 'Verify Authenticated SMTP (smtp-prod.mailrcld.com)',
+                desc: 'Transactional emails configured via Port 587 (STARTTLS) with Sender ID `support@pixelneuron.net` for instant receipts and OTP.'
               }
             ].map((st) => (
               <div key={st.step} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-3">

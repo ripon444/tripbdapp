@@ -5,6 +5,7 @@ export const ApiTester: React.FC = () => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>('GET /api/v1/health');
   const [phone, setPhone] = useState<string>('01711000000');
   const [otp, setOtp] = useState<string>('1234');
+  const [email, setEmail] = useState<string>('capitalaurex444@gmail.com');
   const [response, setResponse] = useState<any>(null);
   const [status, setStatus] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -15,6 +16,8 @@ export const ApiTester: React.FC = () => {
     { method: 'GET', path: '/api/v1/services', name: 'Get Transport Categories' },
     { method: 'GET', path: '/api/v1/vehicle-types', name: 'Get Vehicle Types' },
     { method: 'GET', path: '/api/v1/cpanel-check', name: 'cPanel Hosting Audit' },
+    { method: 'GET', path: '/api/v1/admin/mail/settings', name: 'SMTP Mail Configuration' },
+    { method: 'POST', path: '/api/v1/admin/mail/test', name: 'Send SMTP Test Email' },
     { method: 'POST', path: '/api/v1/auth/send-otp', name: 'Send OTP (Sanctum/Auth)' },
     { method: 'POST', path: '/api/v1/auth/verify-otp', name: 'Verify OTP & Issue Token' }
   ];
@@ -41,6 +44,12 @@ export const ApiTester: React.FC = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone, otp_code: otp })
+        });
+      } else if (path === '/api/v1/admin/mail/test') {
+        res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
         });
       }
 
@@ -110,27 +119,46 @@ export const ApiTester: React.FC = () => {
           {selectedEndpoint.startsWith('POST') && (
             <div className="mt-4 p-3.5 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
               <span className="text-[11px] font-bold text-slate-700 block">POST Request Body</span>
-              <div>
-                <label className="text-[11px] text-slate-600 block mb-1">Bangladeshi Phone (013-019):</label>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full text-xs font-mono p-2 border border-slate-300 rounded bg-white"
-                  placeholder="01711000000"
-                />
-              </div>
-              {selectedEndpoint.includes('verify-otp') && (
+              
+              {selectedEndpoint.includes('mail/test') ? (
                 <div>
-                  <label className="text-[11px] text-slate-600 block mb-1">OTP Code (Test: 1234):</label>
+                  <label className="text-[11px] text-slate-600 block mb-1">Recipient Email Address:</label>
                   <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full text-xs font-mono p-2 border border-slate-300 rounded bg-white"
-                    placeholder="1234"
+                    placeholder="capitalaurex444@gmail.com"
                   />
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Sent from <strong>support@pixelneuron.net</strong> via <strong>smtp-prod.mailrcld.com:587</strong> (STARTTLS)
+                  </span>
                 </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-[11px] text-slate-600 block mb-1">Bangladeshi Phone (013-019):</label>
+                    <input
+                      type="text"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full text-xs font-mono p-2 border border-slate-300 rounded bg-white"
+                      placeholder="01711000000"
+                    />
+                  </div>
+                  {selectedEndpoint.includes('verify-otp') && (
+                    <div>
+                      <label className="text-[11px] text-slate-600 block mb-1">OTP Code (Test: 1234):</label>
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="w-full text-xs font-mono p-2 border border-slate-300 rounded bg-white"
+                        placeholder="1234"
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

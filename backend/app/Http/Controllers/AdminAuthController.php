@@ -44,7 +44,30 @@ class AdminAuthController extends Controller
             })
             ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid administrative credentials.'
+            ], 401);
+        }
+
+        // Validate password using secure Bcrypt hashing with auto-upgrade if legacy plain text is stored
+        $passwordValid = false;
+        try {
+            $passwordValid = Hash::check($request->password, $user->password);
+        } catch (\Throwable $e) {
+            // If stored password in DB is legacy unhashed text from manual phpMyAdmin entry during deployment,
+            // verify with constant-time equality and immediately upgrade to a true Bcrypt hash
+            if (hash_equals((string)$user->password, (string)$request->password)) {
+                $user->password = Hash::make($request->password);
+                $user->save();
+                $passwordValid = true;
+            } else {
+                $passwordValid = false;
+            }
+        }
+
+        if (!$passwordValid) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid administrative credentials.'

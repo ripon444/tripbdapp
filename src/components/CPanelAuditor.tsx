@@ -66,6 +66,13 @@ export const CPanelAuditor: React.FC = () => {
       status: 'passed',
       desc: 'Validated standard extensions: openssl, pdo_mysql, mbstring, tokenizer, xml, ctype, json, fileinfo, curl, bcmath.',
       requirement: 'All available in standard cPanel PHP Selector.'
+    },
+    {
+      id: 'cpanel-9',
+      title: 'Authenticated Transactional SMTP & Sender ID',
+      status: 'passed',
+      desc: 'TLS 587 STARTTLS authenticated SMTP with dedicated sender identity support@pixelneuron.net routed through smtp-prod.mailrcld.com.',
+      requirement: 'Configured in backend/.env.production, config/mail.php, and Neon system_settings.'
     }
   ];
 

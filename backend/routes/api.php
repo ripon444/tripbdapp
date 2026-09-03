@@ -153,6 +153,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/reports/financial', [AdminFinanceController::class, 'financialReport']);
             Route::get('/settings/financial', [AdminFinanceController::class, 'getSettings']);
             Route::put('/settings/financial', [AdminFinanceController::class, 'updateSettings']);
+
+            // Transactional Mail & SMTP Settings
+            Route::get('/mail/settings', [AdminFinanceController::class, 'getMailSettings']);
+            Route::post('/mail/test', [AdminFinanceController::class, 'sendTestMail']);
         });
     });
 });

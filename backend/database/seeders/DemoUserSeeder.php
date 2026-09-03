@@ -12,47 +12,54 @@ use App\Models\Vehicle;
 
 class DemoUserSeeder extends Seeder
 {
-    public function run(): void
+    /**
+     * Upsert a user while guaranteeing no duplicate email or phone conflicts.
+     */
+    private function upsertUser(string $email, string $phone, array $data): User
     {
-        // 1. Super Admin
-        $admin = User::where('email', 'admin@tripbd.com')
-            ->orWhere('phone', '01700000000')
-            ->first();
-
-        if ($admin) {
-            $admin->update([
-                'name' => 'TripBD System Admin',
-                'phone' => '01700000000',
-                'email' => 'admin@tripbd.com',
-                'password' => Hash::make('password123'),
-                'role' => 'admin',
-                'status' => 'active',
-                'phone_verified_at' => now(),
-            ]);
-        } else {
-            $admin = User::create([
-                'name' => 'TripBD System Admin',
-                'phone' => '01700000000',
-                'email' => 'admin@tripbd.com',
-                'password' => Hash::make('password123'),
-                'role' => 'admin',
-                'status' => 'active',
-                'phone_verified_at' => now(),
-            ]);
+        // Clean up any conflicting records that would cause MySQL/PgSQL UNIQUE key violations
+        $conflicts = User::where('email', $email)->orWhere('phone', $phone)->get();
+        
+        if ($conflicts->count() > 1) {
+            $primary = $conflicts->first();
+            foreach ($conflicts->slice(1) as $dup) {
+                CustomerProfile::where('user_id', $dup->id)->delete();
+                DriverProfile::where('user_id', $dup->id)->delete();
+                Wallet::where('driver_id', $dup->id)->delete();
+                $dup->delete();
+            }
+            $primary->update(array_merge(['email' => $email, 'phone' => $phone], $data));
+            return $primary;
         }
 
+        $existing = $conflicts->first();
+        if ($existing) {
+            $existing->update(array_merge(['email' => $email, 'phone' => $phone], $data));
+            return $existing;
+        }
+
+        return User::create(array_merge(['email' => $email, 'phone' => $phone], $data));
+    }
+
+    public function run(): void
+    {
+        // 1. Super Admin Account
+        $this->upsertUser('admin@tripbd.com', '01700000000', [
+            'name' => 'TripBD System Admin',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'status' => 'active',
+            'phone_verified_at' => now(),
+        ]);
+
         // 2. Demo Customer (Tanvir Hasan)
-        $customer = User::updateOrCreate(
-            ['phone' => '01711111111'],
-            [
-                'name' => 'Tanvir Hasan',
-                'email' => 'tanvir@gmail.com',
-                'password' => Hash::make('password123'),
-                'role' => 'customer',
-                'status' => 'active',
-                'phone_verified_at' => now(),
-            ]
-        );
+        $customer = $this->upsertUser('tanvir@gmail.com', '01711111111', [
+            'name' => 'Tanvir Hasan',
+            'password' => Hash::make('password123'),
+            'role' => 'customer',
+            'status' => 'active',
+            'phone_verified_at' => now(),
+        ]);
 
         CustomerProfile::updateOrCreate(
             ['user_id' => $customer->id],
@@ -65,18 +72,14 @@ class DemoUserSeeder extends Seeder
             ]
         );
 
-        // 3. Demo Driver - Truck Captain (Rafiqul Islam)
-        $driverUser1 = User::updateOrCreate(
-            ['phone' => '01822222222'],
-            [
-                'name' => 'Md. Rafiqul Islam',
-                'email' => 'rafiq.driver@gmail.com',
-                'password' => Hash::make('password123'),
-                'role' => 'driver',
-                'status' => 'active',
-                'phone_verified_at' => now(),
-            ]
-        );
+        // 3. Demo Driver - Truck Captain (Md. Rafiqul Islam)
+        $driverUser1 = $this->upsertUser('rafiq.driver@gmail.com', '01822222222', [
+            'name' => 'Md. Rafiqul Islam',
+            'password' => Hash::make('password123'),
+            'role' => 'driver',
+            'status' => 'active',
+            'phone_verified_at' => now(),
+        ]);
 
         $driverProfile1 = DriverProfile::updateOrCreate(
             ['user_id' => $driverUser1->id],
@@ -117,17 +120,13 @@ class DemoUserSeeder extends Seeder
         );
 
         // 4. Demo Driver - Ambulance Paramedic (Jalal Ahmed)
-        $driverUser2 = User::updateOrCreate(
-            ['phone' => '01933333333'],
-            [
-                'name' => 'Jalal Ahmed (Ambulance)',
-                'email' => 'jalal.ambulance@gmail.com',
-                'password' => Hash::make('password123'),
-                'role' => 'driver',
-                'status' => 'active',
-                'phone_verified_at' => now(),
-            ]
-        );
+        $driverUser2 = $this->upsertUser('jalal.ambulance@gmail.com', '01933333333', [
+            'name' => 'Jalal Ahmed (Ambulance)',
+            'password' => Hash::make('password123'),
+            'role' => 'driver',
+            'status' => 'active',
+            'phone_verified_at' => now(),
+        ]);
 
         $driverProfile2 = DriverProfile::updateOrCreate(
             ['user_id' => $driverUser2->id],

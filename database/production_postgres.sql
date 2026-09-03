@@ -582,7 +582,13 @@ INSERT INTO system_settings (key, value, type, description) VALUES
 ('currency_symbol', '৳', 'string', 'Bangladeshi Taka Symbol'),
 ('currency_code', 'BDT', 'string', 'ISO Currency Code'),
 ('support_phone', '+8809612000000', 'string', '24/7 Helpline contact number'),
-('support_email', 'support@tripbd.com', 'string', 'Customer Care Email'),
+('support_email', 'support@pixelneuron.net', 'string', 'Customer Care Email'),
+('mail_host', 'smtp-prod.mailrcld.com', 'string', 'SMTP Server Host'),
+('mail_port', '587', 'integer', 'SMTP Server Port (STARTTLS)'),
+('mail_encryption', 'tls', 'string', 'SMTP Encryption'),
+('mail_username', 'support@pixelneuron.net', 'string', 'SMTP Authenticated Username'),
+('mail_from_address', 'support@pixelneuron.net', 'string', 'Transactional Sender Address'),
+('mail_from_name', 'TripBD Support', 'string', 'Transactional Sender Name'),
 ('sms_gateway_provider', 'greenweb', 'string', 'Active SMS Gateway Provider'),
 ('otp_expiry_minutes', '5', 'integer', 'OTP validity duration in minutes'),
 ('max_search_radius_km', '15.00', 'decimal', 'Maximum driver search radius in kilometers'),
@@ -712,13 +718,14 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, latitude = EXCLUDED.latitud
 SELECT setval('locations_id_seq', (SELECT COALESCE(MAX(id), 1) FROM locations));
 
 -- 5. Seed Users (Demo Admin, Customer, & Drivers)
--- Password for all demo accounts: 'password123' (Laravel Bcrypt Cost 12 Hash)
+-- Password for all demo accounts: 'password123' (PHP 8.4 Bcrypt Cost 12 Hash)
+-- Hash: $2y$12$lw2yfRZEd2srIHOWGMdRIeIiKL7hAkpAYFPAooDtMRY3meJ1nt/H6
 INSERT INTO users (id, name, phone, email, password, role, status, phone_verified_at) VALUES
-(1, 'TripBD System Admin', '01700000000', 'admin@tripbd.com', '$2y$12$GZKWOlA.0hefSC6.fUyc4eiJoe/g/dAnGk935FRNsBv3bgiwH0fGm', 'admin', 'active', NOW()),
-(2, 'Tanvir Hasan', '01711111111', 'tanvir@gmail.com', '$2y$12$GZKWOlA.0hefSC6.fUyc4eiJoe/g/dAnGk935FRNsBv3bgiwH0fGm', 'customer', 'active', NOW()),
-(3, 'Md. Rafiqul Islam', '01822222222', 'rafiq.driver@gmail.com', '$2y$12$GZKWOlA.0hefSC6.fUyc4eiJoe/g/dAnGk935FRNsBv3bgiwH0fGm', 'driver', 'active', NOW()),
-(4, 'Jalal Ahmed (Ambulance)', '01933333333', 'jalal.ambulance@gmail.com', '$2y$12$GZKWOlA.0hefSC6.fUyc4eiJoe/g/dAnGk935FRNsBv3bgiwH0fGm', 'driver', 'active', NOW())
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, password = EXCLUDED.password, role = EXCLUDED.role, status = EXCLUDED.status;
+(1, 'TripBD System Admin', '01700000000', 'admin@tripbd.com', '$2y$12$lw2yfRZEd2srIHOWGMdRIeIiKL7hAkpAYFPAooDtMRY3meJ1nt/H6', 'admin', 'active', NOW()),
+(2, 'Tanvir Hasan', '01711111111', 'tanvir@gmail.com', '$2y$12$lw2yfRZEd2srIHOWGMdRIeIiKL7hAkpAYFPAooDtMRY3meJ1nt/H6', 'customer', 'active', NOW()),
+(3, 'Md. Rafiqul Islam', '01822222222', 'rafiq.driver@gmail.com', '$2y$12$lw2yfRZEd2srIHOWGMdRIeIiKL7hAkpAYFPAooDtMRY3meJ1nt/H6', 'driver', 'active', NOW()),
+(4, 'Jalal Ahmed (Ambulance)', '01933333333', 'jalal.ambulance@gmail.com', '$2y$12$lw2yfRZEd2srIHOWGMdRIeIiKL7hAkpAYFPAooDtMRY3meJ1nt/H6', 'driver', 'active', NOW())
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, phone = EXCLUDED.phone, email = EXCLUDED.email, password = EXCLUDED.password, role = EXCLUDED.role, status = EXCLUDED.status;
 
 SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 1) FROM users));
 

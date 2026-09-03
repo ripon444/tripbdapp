@@ -239,4 +239,70 @@ class AdminFinanceController extends Controller
         $settlements = $query->latest()->paginate(20);
         return response()->json(['success' => true, 'data' => $settlements]);
     }
+
+    /**
+     * Get active SMTP mail configuration and status.
+     * GET /api/v1/admin/mail/settings
+     */
+    public function getMailSettings(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'mailer' => config('mail.default', 'smtp'),
+                'host' => config('mail.mailers.smtp.host', 'smtp-prod.mailrcld.com'),
+                'port' => (int) config('mail.mailers.smtp.port', 587),
+                'encryption' => config('mail.mailers.smtp.encryption', 'tls'),
+                'username' => config('mail.mailers.smtp.username', 'support@pixelneuron.net'),
+                'from_address' => config('mail.from.address', 'support@pixelneuron.net'),
+                'from_name' => config('mail.from.name', 'TripBD Support'),
+                'status' => 'configured'
+            ]
+        ]);
+    }
+
+    /**
+     * Send test transactional email.
+     * POST /api/v1/admin/mail/test
+     */
+    public function sendTestMail(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Valid recipient email address is required.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $recipient = $request->input('email');
+        $mailService = app(\App\Services\MailService::class);
+        $subject = "TripBD SMTP Verification & Health Test";
+        $html = "
+            <div style='font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;'>
+                <div style='background: #0f172a; padding: 20px; text-align: center; color: #ffffff;'>
+                    <h2 style='margin: 0;'>TripBD SMTP Authenticated</h2>
+                    <p style='margin: 4px 0 0; font-size: 13px; color: #38bdf8;'>Host: smtp-prod.mailrcld.com:587 (STARTTLS)</p>
+                </div>
+                <div style='padding: 24px; color: #334155;'>
+                    <p style='font-size: 16px; color: #16a34a; font-weight: bold;'>✔ SMTP Handshake & Authentication Successful!</p>
+                    <p>This test email confirms that transactional email sending is fully operational on TripBD.</p>
+                    <ul style='line-height: 1.8; color: #475569;'>
+                        <li><strong>Sender ID:</strong> support@pixelneuron.net</li>
+                        <li><strong>Authenticated User:</strong> capitalaurex444@gmail.com</li>
+                        <li><strong>Security Protocol:</strong> STARTTLS</li>
+                    </ul>
+                    <p style='font-size: 12px; color: #94a3b8; margin-top: 24px;'>TripBD Automated Mail Subsystem</p>
+                </div>
+            </div>
+        ";
+
+        $result = $mailService->sendTransactional($recipient, $subject, $html, 'TripBD Administrator');
+
+        return response()->json($result, $result['success'] ? 200 : 500);
+    }
 }

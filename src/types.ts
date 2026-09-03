@@ -294,3 +294,24 @@ export interface Booking {
   } | null;
 }
 
+export interface PostgresStatusResponse {
+  success: boolean;
+  connected: boolean;
+  provider: string;
+  database: string;
+  user: string;
+  version: string;
+  host: string;
+  region: string;
+  port: number;
+  sslmode: string;
+  tables_count: number;
+  tables: string[];
+  records: Record<string, number>;
+  connection_url_masked: string;
+  cpanel_migrated: boolean;
+  migration_date: string;
+  error?: string;
+}
+
+

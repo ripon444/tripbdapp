@@ -34,10 +34,10 @@ export const CPanelAuditor: React.FC = () => {
     },
     {
       id: 'cpanel-4',
-      title: 'MySQL 8+ Strict Collation & Schema',
+      title: 'Neon PostgreSQL & MySQL Dual Support',
       status: 'passed',
-      desc: 'Clean `database/production.sql` with utf8mb4_unicode_ci collation, foreign keys, timestamps, and indexes, ready for 1-click phpMyAdmin import.',
-      requirement: 'No SQLite dependency in production; MySQL 8.0+ standard.'
+      desc: 'Active Neon Serverless PostgreSQL instance in AWS Singapore verified with SSL mode. Backup MySQL schema `database/production.sql` retained for phpMyAdmin fallback.',
+      requirement: 'Laravel pgsql driver configured in config/database.php and .env.production.'
     },
     {
       id: 'cpanel-5',

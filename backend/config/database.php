@@ -4,7 +4,7 @@ use Illuminate\Support\Str;
 
 return [
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     'connections' => [
 
@@ -14,6 +14,21 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ],
+
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', 'ep-withered-cell-azwm4gqa-pooler.c-3.ap-southeast-1.aws.neon.tech'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'neondb'),
+            'username' => env('DB_USERNAME', 'neondb_owner'),
+            'password' => env('DB_PASSWORD', 'npg_dXIJQk5vVwY8'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'require'),
         ],
 
         'mysql' => [
